@@ -544,13 +544,8 @@ export default class PresentationOverlay extends Component {
     };
 
     return (
-      <foreignObject
-        clipPath="url(#viewBox)"
-        x="0"
-        y="0"
-        width={slideWidth}
-        height={slideHeight}
-        style={{ zIndex: MAX_Z_INDEX }}
+      <div
+        style={{ zIndex: 1000, top:0, left:0, height: '100%', width: '100%', position:'absolute' }}
       >
         <div
           role="presentation"
@@ -562,7 +557,7 @@ export default class PresentationOverlay extends Component {
         >
           {children}
         </div>
-      </foreignObject>
+      </div>
     );
   }
 }

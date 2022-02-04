@@ -62,7 +62,7 @@ const ToolbarContainer = styled.div`
   left: auto;
   bottom: 0;
   pointer-events: none;
-  z-index: 3;
+  z-index: 1001;
 
   [dir="rtl"] & {
     margin: 0 0 0 ${toolbarMargin};

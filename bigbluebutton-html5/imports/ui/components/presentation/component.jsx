@@ -646,14 +646,14 @@ class Presentation extends PureComponent {
               slideHeight={height}
             />
           </g>
-          {this.renderOverlays(
-            currentSlide,
-            svgDimensions,
-            viewBoxPosition,
-            viewBoxDimensions,
-            physicalDimensions,
-          )}
         </Styled.PresentationSvg>
+        {this.renderOverlays(
+          currentSlide,
+          svgDimensions,
+          viewBoxPosition,
+          viewBoxDimensions,
+          physicalDimensions,
+        )}
         <SelectionModificationContainer
           localPosition={localPosition}
           userIsPresenter={userIsPresenter}
