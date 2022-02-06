@@ -504,6 +504,11 @@ class Presentation extends PureComponent {
         getSvgRef={this.getSvgRef}
         fitToWidth={fitToWidth}
       >
+        <SelectionModificationContainer
+          // localPosition={localPosition}
+          userIsPresenter={userIsPresenter}
+          whiteboardId={currentSlide.id}
+        />
         <WhiteboardOverlayContainer
           getSvgRef={this.getSvgRef}
           userIsPresenter={userIsPresenter}
@@ -654,11 +659,6 @@ class Presentation extends PureComponent {
           viewBoxDimensions,
           physicalDimensions,
         )}
-        <SelectionModificationContainer
-          localPosition={localPosition}
-          userIsPresenter={userIsPresenter}
-          whiteboardId={currentSlide.id}
-        />
       </div>
     );
   }
