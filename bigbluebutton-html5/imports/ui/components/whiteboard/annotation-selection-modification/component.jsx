@@ -12,14 +12,14 @@ function SelectionModification(props) {
   const [moveableTargets, setMoveableTargets] = React.useState([]);
 
   const {
-    tool, userIsPresenter, whiteboardId, localPosition,
+    tool, userIsPresenter, whiteboardId, localPosition, zoom,
   } = props;
 
   useEffect(() => {
     if (moveableRef.current) {
       moveableRef.current.updateRect();
     }
-  }, [localPosition, userIsPresenter]);
+  }, [localPosition, userIsPresenter, zoom]);
 
   function deselect(selection) {
     setMoveableTargets(moveableTargets.filter((selected) => !selection.includes(selected.id)));
@@ -110,6 +110,7 @@ function SelectionModification(props) {
       <Selecto
         // disable selecto on other tools and if user is presenter
         dragCondition={() => tool === 'selection' && userIsPresenter}
+        container={'#slideSVG'}
         boundContainer="#slideSVG"
         ref={selectoRef}
         selectByClick
@@ -136,6 +137,7 @@ SelectionModification.propTypes = {
   // Zoom itself does not work as trigger prop because
   // sometimes it gets updated prior to rerendering.
   localPosition: PropTypes.objectOf(PropTypes.number).isRequired,
+  zoom: PropTypes.number.isRequired,
   userIsPresenter: PropTypes.bool.isRequired,
   whiteboardId: PropTypes.string.isRequired,
 };

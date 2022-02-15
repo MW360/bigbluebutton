@@ -183,6 +183,9 @@ export default class CursorListener extends Component {
       height: '100%',
       touchAction: 'none',
       zIndex: MAX_Z_INDEX,
+      top: 0,
+      left: 0,
+      position: 'absolute',
     };
 
     return (
