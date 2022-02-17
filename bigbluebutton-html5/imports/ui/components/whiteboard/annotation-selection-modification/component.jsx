@@ -51,7 +51,7 @@ function SelectionModification(props) {
         .filter((e) => e.classList.contains('selectable'));
       if (elements.length > 0) {
         [newEvent.target] = elements;
-        selectoRef.current.clickTarget(newEvent, elements[0]);
+        // selectoRef.current.clickTarget(newEvent, elements[0]);
       }
     }
   }

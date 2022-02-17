@@ -628,60 +628,7 @@ class Presentation extends PureComponent {
           getSvgRef={this.getSvgRef}
           fitToWidth={fitToWidth}
         >
-          <Styled.PresentationSvg
-            id="slideSVG"
-            key={currentSlide.id}
-            data-test="whiteboard"
-            width={svgDimensions.width < 0 ? 0 : svgDimensions.width}
-            height={svgDimensions.height < 0 ? 0 : svgDimensions.height}
-            ref={(ref) => { if (ref != null) { this.svggroup = ref; } }}
-            viewBox={svgViewBox}
-            version="1.1"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <defs>
-              <clipPath id="viewBox">
-                <rect x={viewBoxPosition.x} y={viewBoxPosition.y} width="100%" height="100%" fill="none" />
-              </clipPath>
-            </defs>
-            <g clipPath="url(#viewBox)">
-              <Slide
-                imageUri={imageUri}
-                svgWidth={width}
-                svgHeight={height}
-              />
-              <AnnotationGroupContainer
-                {...{
-                  width,
-                  height,
-                }}
-                published
-                whiteboardId={currentSlide.id}
-              />
-              <AnnotationGroupContainer
-                {...{
-                  width,
-                  height,
-                }}
-                published={false}
-                whiteboardId={currentSlide.id}
-              />
-              <CursorWrapperContainer
-                podId={podId}
-                whiteboardId={currentSlide.id}
-                widthRatio={widthRatio}
-                physicalWidthRatio={svgDimensions.width / width}
-                slideWidth={width}
-                slideHeight={height}
-              />
-            </g>
-          </Styled.PresentationSvg>
-          <SelectionModificationContainer
-              // localPosition={localPosition}
-            userIsPresenter={userIsPresenter}
-            whiteboardId={currentSlide.id}
-            zoom={zoom}
-          />
+
           <WhiteboardOverlayContainer
             getSvgRef={this.getSvgRef}
             userIsPresenter={userIsPresenter}
@@ -697,7 +644,62 @@ class Presentation extends PureComponent {
             physicalSlideHeight={physicalDimensions.height}
             zoom={zoom}
             zoomChanger={this.zoomChanger}
-          />
+          >
+            <Styled.PresentationSvg
+              id="slideSVG"
+              key={currentSlide.id}
+              data-test="whiteboard"
+              width={svgDimensions.width < 0 ? 0 : svgDimensions.width}
+              height={svgDimensions.height < 0 ? 0 : svgDimensions.height}
+              ref={(ref) => { if (ref != null) { this.svggroup = ref; } }}
+              viewBox={svgViewBox}
+              version="1.1"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <clipPath id="viewBox">
+                  <rect x={viewBoxPosition.x} y={viewBoxPosition.y} width="100%" height="100%" fill="none" />
+                </clipPath>
+              </defs>
+              <g clipPath="url(#viewBox)">
+                <Slide
+                  imageUri={imageUri}
+                  svgWidth={width}
+                  svgHeight={height}
+                />
+                <AnnotationGroupContainer
+                  {...{
+                    width,
+                    height,
+                  }}
+                  published
+                  whiteboardId={currentSlide.id}
+                />
+                <AnnotationGroupContainer
+                  {...{
+                    width,
+                    height,
+                  }}
+                  published={false}
+                  whiteboardId={currentSlide.id}
+                />
+                <CursorWrapperContainer
+                  podId={podId}
+                  whiteboardId={currentSlide.id}
+                  widthRatio={widthRatio}
+                  physicalWidthRatio={svgDimensions.width / width}
+                  slideWidth={width}
+                  slideHeight={height}
+                />
+              </g>
+            </Styled.PresentationSvg>
+            <SelectionModificationContainer
+                // localPosition={localPosition}
+              userIsPresenter={userIsPresenter}
+              whiteboardId={currentSlide.id}
+              zoom={zoom}
+            />
+          </WhiteboardOverlayContainer>
         </PresentationOverlayContainer>
       </div>
     );

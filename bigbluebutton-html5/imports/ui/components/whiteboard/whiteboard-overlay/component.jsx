@@ -52,7 +52,6 @@ export default class WhiteboardOverlay extends Component {
     this.normalizeFont = this.normalizeFont.bind(this);
   }
 
-
   getCurrentShapeId() {
     return this.currentShapeId;
   }
@@ -109,7 +108,7 @@ export default class WhiteboardOverlay extends Component {
       userId,
     } = this.props;
 
-    this.count = this.count + 1;
+    this.count += 1;
     this.currentShapeId = `${userId}-${this.count}-${new Date().getTime()}`;
     return this.currentShapeId;
   }
@@ -155,7 +154,7 @@ export default class WhiteboardOverlay extends Component {
     };
   }
 
-  renderDrawListener(actions) {
+  renderDrawListener(actions, children) {
     const {
       drawSettings,
       userId,
@@ -176,7 +175,7 @@ export default class WhiteboardOverlay extends Component {
             actions={actions}
             drawSettings={drawSettings}
             whiteboardId={whiteboardId}
-          />
+          >{children}</ShapePointerListener>
         );
       }
 
@@ -186,7 +185,7 @@ export default class WhiteboardOverlay extends Component {
           actions={actions}
           drawSettings={drawSettings}
           whiteboardId={whiteboardId}
-        />
+        >{children}</ShapeDrawListener>
       );
     } if (tool === 'pencil') {
       if (window.PointerEvent) {
@@ -198,7 +197,9 @@ export default class WhiteboardOverlay extends Component {
             actions={actions}
             physicalSlideWidth={physicalSlideWidth}
             physicalSlideHeight={physicalSlideHeight}
-          />
+          >
+            {children}
+          </PencilPointerListener>
         );
       }
 
@@ -210,7 +211,9 @@ export default class WhiteboardOverlay extends Component {
           actions={actions}
           physicalSlideWidth={physicalSlideWidth}
           physicalSlideHeight={physicalSlideHeight}
-        />
+        >
+          {children}
+        </PencilDrawListener>
       );
     } if (tool === 'text') {
       return (
@@ -221,11 +224,11 @@ export default class WhiteboardOverlay extends Component {
           actions={actions}
           slideWidth={slideWidth}
           slideHeight={slideHeight}
-        />
+        >{children}</TextDrawListener>
       );
     }
     return (
-      <span />
+      <>{children}</>
     );
   }
 
@@ -238,6 +241,7 @@ export default class WhiteboardOverlay extends Component {
       contextMenuHandler,
       clearPreview,
       updateCursor,
+      children,
     } = this.props;
 
     const actions = {
@@ -261,7 +265,7 @@ export default class WhiteboardOverlay extends Component {
         actions={actions}
         updateCursor={updateCursor}
       >
-        {this.renderDrawListener(actions)}
+        {this.renderDrawListener(actions, children)}
       </CursorListener>
     );
   }
@@ -307,7 +311,7 @@ WhiteboardOverlay.propTypes = {
     // Text shape value
     textShapeValue: PropTypes.string.isRequired,
     // Fill shape
-    //fill: PropTypes.bool.isRequired,
+    // fill: PropTypes.bool.isRequired,
   }).isRequired,
   // Defines a function which resets the current state of the text shape drawing
   resetTextShapeSession: PropTypes.func.isRequired,

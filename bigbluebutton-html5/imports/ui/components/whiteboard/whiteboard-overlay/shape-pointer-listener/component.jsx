@@ -406,6 +406,7 @@ export default class ShapePointerListener extends Component {
     const {
       actions,
       drawSettings,
+      children,
     } = this.props;
 
     const {
@@ -431,7 +432,9 @@ export default class ShapePointerListener extends Component {
         role="presentation"
         style={shapeDrawStyle}
         onContextMenu={contextMenuHandler}
-      />
+      >
+        {children}
+      </div>
     );
   }
 }

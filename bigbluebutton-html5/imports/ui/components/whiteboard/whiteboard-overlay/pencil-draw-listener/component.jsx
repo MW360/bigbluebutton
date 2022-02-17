@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {Meteor} from "meteor/meteor";
+import { Meteor } from 'meteor/meteor';
 
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_START = ANNOTATION_CONFIG.status.start;
@@ -12,8 +12,8 @@ const MAX_Z_INDEX = (2 ** 31) - 1;
 const POINTS_TO_BUFFER = 2;
 
 export default class PencilDrawListener extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
 
     // to track the status of drawing
     this.isDrawing = false;
@@ -268,6 +268,7 @@ export default class PencilDrawListener extends Component {
   render() {
     const {
       actions,
+      children,
     } = this.props;
 
     const { contextMenuHandler } = actions;
@@ -288,7 +289,9 @@ export default class PencilDrawListener extends Component {
         style={pencilDrawStyle}
         onMouseDown={this.mouseDownHandler}
         onContextMenu={contextMenuHandler}
-      />
+      >
+        {children}
+      </div>
     );
   }
 }

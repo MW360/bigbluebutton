@@ -115,12 +115,12 @@ export default class Cursor extends Component {
     }
     return true;
   }
-  
+
   componentDidUpdate(prevProps, prevState) {
     const {
       scaledSizes,
     } = this.state;
-    if (!prevState.scaledSizes && scaledSizes) {      
+    if (!prevState.scaledSizes && scaledSizes) {
       this.calculateCursorLabelBoxDimensions();
     }
 
@@ -163,7 +163,7 @@ export default class Cursor extends Component {
     }
   }
 
-  setLabelBoxDimensions(labelBoxWidth, labelBoxHeight) {    
+  setLabelBoxDimensions(labelBoxWidth, labelBoxHeight) {
     this.setState({
       labelBoxWidth,
       labelBoxHeight,
@@ -199,12 +199,12 @@ export default class Cursor extends Component {
       userName,
       isRTL,
     } = this.props;
-    
+
     const {
       cursorCoordinate,
       fill,
     } = this;
-    
+
     if (!scaledSizes) return null;
     const {
       cursorLabelBox,
@@ -222,6 +222,7 @@ export default class Cursor extends Component {
 
     return (
       <g
+          style={{pointerEvents: 'none'}}
         x={x}
         y={y}
       >

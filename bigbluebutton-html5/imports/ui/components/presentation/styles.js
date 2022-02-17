@@ -30,8 +30,8 @@ const PresentationSvg = styled.svg`
   max-width: 100%;
   max-height: 100%;
 
-  //always show an arrow by default
-  cursor: default;
+  //inherit cursor from overlays
+  cursor: inherit;
 
   //double click on the whiteboard shouldn't change the cursor
   -moz-user-select: -moz-none;

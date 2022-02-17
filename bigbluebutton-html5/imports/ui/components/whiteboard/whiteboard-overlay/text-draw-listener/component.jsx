@@ -152,7 +152,6 @@ export default class TextDrawListener extends Component {
     // to prevent default behavior (scrolling) on devices (in Safari), when you draw a text box
     event.preventDefault();
 
-
     // if our current drawing state is not drawing the box and not writing the text
     if (!isDrawing && !isWritingText) {
       window.addEventListener('touchend', this.handleTouchEnd, { passive: false });
@@ -359,7 +358,6 @@ export default class TextDrawListener extends Component {
     });
   }
 
-
   commonDrawEndHandler() {
     const {
       actions,
@@ -498,6 +496,7 @@ export default class TextDrawListener extends Component {
   render() {
     const {
       actions,
+      children,
     } = this.props;
 
     const {
@@ -516,6 +515,8 @@ export default class TextDrawListener extends Component {
     const textDrawStyle = {
       width: '100%',
       height: '100%',
+      top: 0,
+      left: 0,
       touchAction: 'none',
       zIndex: MAX_Z_INDEX,
       cursor: `url('${baseName}/resources/images/whiteboard-cursor/text.png'), default`,
@@ -532,6 +533,7 @@ export default class TextDrawListener extends Component {
         {isDrawing
           ? (
             <svg
+              style={{ top: 0, left: 0 }}
               width="100%"
               height="100%"
               xmlns="http://www.w3.org/2000/svg"
@@ -552,6 +554,7 @@ export default class TextDrawListener extends Component {
             </svg>
           )
           : null }
+        {children}
       </div>
     );
   }

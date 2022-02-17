@@ -327,6 +327,7 @@ export default class PencilPointerListener extends Component {
   render() {
     const {
       actions,
+      children,
     } = this.props;
 
     const { contextMenuHandler } = actions;
@@ -346,7 +347,9 @@ export default class PencilPointerListener extends Component {
         role="presentation"
         style={pencilDrawStyle}
         onContextMenu={contextMenuHandler}
-      />
+      >
+        {children}
+      </div>
     );
   }
 }
