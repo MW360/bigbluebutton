@@ -131,7 +131,7 @@ SelectionModification.propTypes = {
   // Track local position to trigger rerender of
   // selection rectangle (Moveable control box) on zoom.
   // Zoom itself does not work as trigger prop because
-  // sometimes it gets updated prior to rerendering.
+  // sometimes it gets updated prior to re-rendering.
   svgDimensions: PropTypes.objectOf(PropTypes.number).isRequired,
   userIsPresenter: PropTypes.bool.isRequired,
   whiteboardId: PropTypes.string.isRequired,
