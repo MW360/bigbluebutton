@@ -19,5 +19,7 @@ export default withTracker(({ whiteboardId }) => {
 })(SelectionModificationContainer);
 
 SelectionModificationContainer.propTypes = {
-  zoom: PropTypes.number.isRequired,
+  svgDimensions: PropTypes.objectOf(PropTypes.number).isRequired,
+  userIsPresenter: PropTypes.bool.isRequired,
+  whiteboardId: PropTypes.string.isRequired,
 };
