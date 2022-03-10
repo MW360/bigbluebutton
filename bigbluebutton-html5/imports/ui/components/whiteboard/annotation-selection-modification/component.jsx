@@ -10,8 +10,20 @@ function SelectionModification(props) {
   const selectoRef = React.useRef(null);
 
   const {
-    tool, userIsPresenter, whiteboardId, svgDimensions, selection, isMultiUserActive,
+    tool,
+    userIsPresenter,
+    whiteboardId,
+    svgDimensions,
+    selection,
+    isMultiUserActive,
+    annotationIdsOfUser,
   } = props;
+
+  useEffect(() => {
+    if (selectoRef.current) {
+      selectoRef.current.setSelectedTargets(selection);
+    }
+  }, [selection]);
 
   useEffect(() => {
     if (moveableRef.current) {
@@ -115,11 +127,13 @@ function SelectionModification(props) {
         selectableTargets={['.selectable']}
         onSelect={
           (e) => {
-            SelectionService.selectAnnotations(e.selected.map((target) => target));
+            SelectionService.selectAnnotations(e.selected
+              .filter((target) => annotationIdsOfUser.includes(target.id)));
           }
         }
         onSelectEnd={(e) => {
-          SelectionService.selectAnnotations(e.selected.map((target) => target));
+          SelectionService.selectAnnotations(e.selected
+            .filter((target) => annotationIdsOfUser.includes(target.id)));
         }}
       />
     </>
@@ -137,6 +151,8 @@ SelectionModification.propTypes = {
   whiteboardId: PropTypes.string.isRequired,
   selection: PropTypes.arrayOf(PropTypes.object).isRequired,
   isMultiUserActive: PropTypes.bool.isRequired,
+  // all annotations on current whiteboard that belong to the user
+  annotationIdsOfUser: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
 export default SelectionModification;
