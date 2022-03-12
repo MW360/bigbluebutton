@@ -8,6 +8,7 @@ import ToolbarService from '/imports/ui/components/whiteboard/whiteboard-toolbar
 function SelectionModification(props) {
   const moveableRef = React.useRef(null);
   const selectoRef = React.useRef(null);
+  const [frameMap] = React.useState(() => new Map());
 
   const {
     tool,
@@ -36,33 +37,53 @@ function SelectionModification(props) {
     SelectionService.selectAnnotations([]);
   }, [whiteboardId]);
 
-  function forwardEventOnSelectableToSelecto(eventToTarget) {
-    if (selectoRef) {
-      const newEvent = eventToTarget;
+  function getPointerCoordinatesByEvent(event, eventTypes) {
+    let x = null;
+    let y = null;
 
-      let x = null;
-      let y = null;
-
-      switch (eventToTarget.type) {
-        case 'mousedown':
-          x = eventToTarget.clientX;
-          y = eventToTarget.clientY;
-          break;
-        case 'touchstart':
-          x = eventToTarget.touches[0].pageX;
-          y = eventToTarget.touches[0].pageY;
-          break;
-        default:
-          break;
+    if (!eventTypes || eventTypes.includes(event.type)) {
+      const isTouchEvent = Object.prototype.hasOwnProperty.call(event, 'touches');
+      if (isTouchEvent) {
+        x = event.touches[0].pageX;
+        y = event.touches[0].pageY;
+      } else {
+        x = event.clientX;
+        y = event.clientY;
       }
+    }
+    return { x, y };
+  }
 
+  function hitTest(e) {
+    const { x, y } = getPointerCoordinatesByEvent(e);
+    const selectableElements = Array.from(document.querySelectorAll('.selectable, div.moveable-area'));
+
+    return selectableElements.filter((el) => {
+      const rect = el.getBoundingClientRect();
+      return x >= rect.left && x <= rect.right
+          && y >= rect.top && y <= rect.bottom;
+    });
+  }
+
+  function forwardEventOnSelectableToSelectoOrMoveable(eventToTarget) {
+    if (selectoRef) {
+      const { x, y } = getPointerCoordinatesByEvent(eventToTarget, ['mousedown', 'touchstart']);
       if (!x || !y) return;
 
       const elements = document.elementsFromPoint(x, y)
         .filter((e) => e.classList.contains('selectable'));
+
+      const hitElements = hitTest(eventToTarget);
+
       if (elements.length > 0) {
-        [newEvent.target] = elements;
-        selectoRef.current.clickTarget(newEvent, elements[0]);
+        const { continueSelect } = selectoRef.current.selecto.options;
+        if (continueSelect || !hitElements.some((element) => element.matches('div.moveable-area'))) {
+          selectoRef.current.clickTarget(eventToTarget, elements[0]);
+        }
+      }
+
+      if (hitElements.length) {
+        moveableRef.current.dragStart(eventToTarget);
       }
     }
   }
@@ -83,11 +104,13 @@ function SelectionModification(props) {
   useEffect(() => {
     const events = ['mousedown', 'touchstart'];
     events.forEach(
-      (eventType) => window.addEventListener(eventType, forwardEventOnSelectableToSelecto),
+      (eventType) => window.addEventListener(eventType,
+        forwardEventOnSelectableToSelectoOrMoveable),
     );
     return () => {
       events.forEach(
-        (eventType) => window.removeEventListener(eventType, forwardEventOnSelectableToSelecto),
+        (eventType) => window.removeEventListener(eventType,
+          forwardEventOnSelectableToSelectoOrMoveable),
       );
     };
   }, []);
@@ -99,16 +122,45 @@ function SelectionModification(props) {
     };
   }, []);
 
+  function initializeFrame(dragEvent, customTarget) {
+    const target = customTarget || dragEvent.target;
+    if (!frameMap.has(target)) {
+      frameMap.set(target, { translate: [0, 0] });
+    }
+    const frame = frameMap.get(target);
+    dragEvent.set(frame.translate);
+  }
+
+  function updateFrame(dragEvent) {
+    const { target } = dragEvent;
+    const frame = frameMap.get(target);
+    frame.translate = dragEvent.beforeTranslate;
+    target.style.transform = `translate(${frame.translate[0]}px, ${frame.translate[1]}px)`;
+  }
+
   return (
     <>
       {userIsPresenter || isMultiUserActive ? (
         <Moveable
           origin={false}
-          draggable={false}
-          // pass pointer events on drag area temporarily until moving is implemented
+          draggable
+          snappable
+          // pass pointer events on drag area
           // this allows keeping presentation / whiteboard overlay active when mouse is over selection group
-          passDragArea
+          snapContainer={document.body}
+          bounds={
+            document.querySelector('#slide')?.getBoundingClientRect()
+          }
+          passDragArea={false}
           rootContainer={document.body}
+          onDragStart={(e) => {
+            const possibleTargets = hitTest(e).filter((el) => selection.includes(el));
+            const target = possibleTargets.length ? possibleTargets[0] : e.target;
+            initializeFrame(e, target);
+          }}
+          onDrag={(e) => updateFrame(e)}
+          onDragGroupStart={(e) => e.events.forEach((dragEvent) => initializeFrame(dragEvent))}
+          onDragGroup={(e) => e.events.forEach((dragEvent) => updateFrame(dragEvent))}
           edge={false}
           ref={moveableRef}
           target={selection}
@@ -131,6 +183,13 @@ function SelectionModification(props) {
               .filter((target) => annotationIdsOfUser.includes(target.id)));
           }
         }
+        onDragStart={(e) => {
+          const elementsWithPointerInBoundingBox = hitTest(e).filter((el) => selection.includes(el) || el.matches('div.moveable-area'));
+
+          if (elementsWithPointerInBoundingBox.length) {
+            e.stop();
+          }
+        }}
         onSelectEnd={(e) => {
           SelectionService.selectAnnotations(e.selected
             .filter((target) => annotationIdsOfUser.includes(target.id)));
