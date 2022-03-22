@@ -32,35 +32,36 @@ const process = () => {
 
 export default function handleWhiteboardModify({ body }, meetingId) {
   const {
-    whiteBoardId, userId, annotations, idsToRemove,
+    whiteBoardId: whiteboardId, userId, annotations, idsToRemove, action,
   } = body;
-  check(whiteBoardId, String);
+  check(whiteboardId, String);
   check(userId, String);
   check(annotations, [Object]);
   check(idsToRemove, [String]);
+  check(action, String);
 
-  if (!annotationsQueue.hasOwnProperty(meetingId)) {
+  if (!Object.prototype.hasOwnProperty.call(annotationsQueue, meetingId)) {
     annotationsQueue[meetingId] = [];
   }
   annotations.forEach((annotation) => {
     const annotationUserId = annotation.userId;
     check(annotationUserId, String);
     annotationsQueue[meetingId].push({
-      meetingId, whiteBoardId, annotationUserId, annotation,
+      meetingId, whiteboardId, userId: annotationUserId, annotation,
     });
   });
-
-  idsToRemove.forEach((shapeId) => {
-    check(shapeId, String);
-    removeAnnotation(meetingId, whiteBoardId, shapeId);
-  });
-
+  if (!(action === 'move')) {
+    idsToRemove.forEach((shapeId) => {
+      check(shapeId, String);
+      removeAnnotation(meetingId, whiteboardId, shapeId);
+    });
+  }
   if (queueMetrics) {
     Metrics.setAnnotationQueueLength(meetingId, annotationsQueue[meetingId].length);
   }
   if (!annotationsRecieverIsRunning) process();
 
   annotations.forEach((annotation) => {
-    addAnnotation(meetingId, whiteBoardId, annotation.userId, annotation);
+    addAnnotation(meetingId, whiteboardId, annotation.userId, annotation);
   });
 }

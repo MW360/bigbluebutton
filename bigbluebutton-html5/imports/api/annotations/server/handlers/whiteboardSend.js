@@ -49,5 +49,5 @@ export default function handleWhiteboardSend({ header, body }, meetingId) {
   }
   if (!annotationsRecieverIsRunning) process();
 
-  return addAnnotation(meetingId, whiteboardId, userId, annotation);
+  return addAnnotation(meetingId, whiteboardId, annotation.userId, annotation);
 }

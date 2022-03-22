@@ -43,7 +43,7 @@ export default function handleWhiteboardUndo({ body }, meetingId) {
   addedAnnotations.forEach((annotation) => {
     var annotationUserId = annotation.userId;
     check(annotationUserId, String);
-    annotationsQueue[meetingId].push({ meetingId, whiteboardId, annotationUserId, annotation });
+    annotationsQueue[meetingId].push({ meetingId, whiteboardId, userId: annotationUserId, annotation });
   });
 
   removedAnnotationIds.forEach((shapeId) => {
@@ -59,5 +59,5 @@ export default function handleWhiteboardUndo({ body }, meetingId) {
   addedAnnotations.forEach((annotation) => {
     addAnnotation(meetingId, whiteboardId, annotation.userId, annotation);
   });
-  return 
-} 
+  return
+}

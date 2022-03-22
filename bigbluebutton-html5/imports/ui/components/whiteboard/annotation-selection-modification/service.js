@@ -1,4 +1,6 @@
 import { Tracker } from 'meteor/tracker';
+import { Annotations } from '../service';
+import { getQueryFromType } from '/imports/api/annotations/annotationTypeDefinition';
 
 let selectedAnnotations = [];
 const selectionDep = new Tracker.Dependency();
@@ -13,6 +15,13 @@ const getSelectedAnnotations = () => {
   return selectedAnnotations;
 };
 
+const getAnnotatonObjectById = (annotationId) => {
+  const selector = { id: annotationId };
+  return Annotations.find(selector, {
+    fields: { ...getQueryFromType('shape'), _id: 0 },
+  }).fetch();
+};
+
 const deselect = (annotationsToDeselect) => {
   selectedAnnotations = selectedAnnotations
     .filter((annotation) => !(annotationsToDeselect.constructor === Array
@@ -24,5 +33,6 @@ const deselect = (annotationsToDeselect) => {
 export default {
   deselect,
   getSelectedAnnotations,
+  getAnnotatonObjectById,
   selectAnnotations,
 };

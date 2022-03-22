@@ -2,26 +2,25 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import StaticAnnotationService from './service';
 
-export default class StaticAnnotation extends React.Component {
-  // completed annotations should never update
-  shouldComponentUpdate() {
-    return false;
-  }
+export default function StaticAnnotation(props) {
+  const {
+    shapeId, drawObject, slideWidth, slideHeight, whiteboardId,
+  } = props;
+  const annotation = StaticAnnotationService.getAnnotationById(shapeId);
+  const Component = drawObject;
 
-  render() {
-    const annotation = StaticAnnotationService.getAnnotationById(this.props.shapeId);
-    const Component = this.props.drawObject;
+  const annotationSVGElement = document.getElementById(annotation.id);
+  if (annotationSVGElement) annotationSVGElement.style.transform = '';
 
-    return (
-      <Component
-        version={annotation.version}
-        annotation={annotation.annotationInfo}
-        slideWidth={this.props.slideWidth}
-        slideHeight={this.props.slideHeight}
-        whiteboardId={this.props.whiteboardId}
-      />
-    );
-  }
+  return (
+    <Component
+      version={annotation.version}
+      annotation={annotation.annotationInfo}
+      slideWidth={slideWidth}
+      slideHeight={slideHeight}
+      whiteboardId={whiteboardId}
+    />
+  );
 }
 
 StaticAnnotation.propTypes = {
