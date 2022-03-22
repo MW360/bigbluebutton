@@ -11,10 +11,14 @@ export default function addAnnotation(meetingId, whiteboardId, userId, annotatio
   const query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation);
 
   try {
-    const { insertedId } = Annotations.upsert(query.selector, query.modifier);
+    const { insertedId, numberAffected } = Annotations.upsert(query.selector, query.modifier);
 
     if (insertedId) {
       Logger.info(`Added annotation id=${annotation.id} whiteboard=${whiteboardId}`);
+    }
+
+    if (numberAffected) {
+      Logger.info(`Updated annotation id=${annotation.id} whiteboard=${whiteboardId}`);
     }
   } catch (err) {
     Logger.error(`Adding annotation to collection: ${err}`);

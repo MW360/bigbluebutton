@@ -30,7 +30,17 @@ function modifyWhiteboardAnnotations(annotations, idsToRemove, whiteBoardId, act
   }
 }
 
-export default function deleteWhiteboardAnnotations(annotations, whiteboardId) {
+export function deleteWhiteboardAnnotations(annotations, whiteboardId) {
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
-  modifyWhiteboardAnnotations([], annotations.map( a => a.id), whiteboardId, 'delete', meetingId, requesterUserId);
+  modifyWhiteboardAnnotations([], annotations.map((a) => a.id), whiteboardId, 'delete', meetingId, requesterUserId);
 }
+
+export function moveWhiteboardAnnotations(annotations, whitebordId) {
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
+  modifyWhiteboardAnnotations(annotations, annotations.map((a) => a.id), whitebordId, 'move', meetingId, requesterUserId);
+}
+
+export default {
+  deleteWhiteboardAnnotations,
+  moveWhiteboardAnnotations,
+};

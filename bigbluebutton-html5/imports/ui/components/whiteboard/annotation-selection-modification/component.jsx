@@ -2,8 +2,8 @@ import Moveable from 'react-moveable';
 import Selecto from 'react-selecto';
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import SelectionService from '/imports/ui/components/whiteboard/annotation-selection-modification/service';
 import ToolbarService from '/imports/ui/components/whiteboard/whiteboard-toolbar/service';
+import SelectionModificationService from '/imports/ui/components/whiteboard/annotation-selection-modification/service';
 
 function SelectionModification(props) {
   const moveableRef = React.useRef(null);
@@ -18,6 +18,8 @@ function SelectionModification(props) {
     selection,
     isMultiUserActive,
     annotationIdsOfUser,
+    slideWidth,
+    slideHeight,
   } = props;
 
   useEffect(() => {
@@ -34,7 +36,7 @@ function SelectionModification(props) {
 
   // clear selection when whiteboard (current slide) changes
   useEffect(() => {
-    SelectionService.selectAnnotations([]);
+    SelectionModificationService.selectAnnotations([]);
   }, [whiteboardId]);
 
   function getPointerCoordinatesByEvent(event, eventTypes) {
@@ -99,7 +101,7 @@ function SelectionModification(props) {
     }
   }
 
-  // Workaround to inject mousedown events into Selecto.
+  // Workaround to inject mousedown events into Selecto and Moveable.
   // Otherwise, events get consumed by whiteboard / presentation overlay.
   useEffect(() => {
     const events = ['mousedown', 'touchstart'];
@@ -124,9 +126,7 @@ function SelectionModification(props) {
 
   function initializeFrame(dragEvent, customTarget) {
     const target = customTarget || dragEvent.target;
-    if (!frameMap.has(target)) {
-      frameMap.set(target, { translate: [0, 0] });
-    }
+    frameMap.set(target, { translate: [0, 0] });
     const frame = frameMap.get(target);
     dragEvent.set(frame.translate);
   }
@@ -146,7 +146,8 @@ function SelectionModification(props) {
           draggable
           snappable
           // pass pointer events on drag area
-          // this allows keeping presentation / whiteboard overlay active when mouse is over selection group
+          // this allows keeping presentation / whiteboard overlay active
+          // when mouse is over selection group
           snapContainer={document.body}
           bounds={
             document.querySelector('#slide')?.getBoundingClientRect()
@@ -154,11 +155,40 @@ function SelectionModification(props) {
           passDragArea={false}
           rootContainer={document.body}
           onDragStart={(e) => {
-            const possibleTargets = hitTest(e).filter((el) => selection.includes(el));
-            const target = possibleTargets.length ? possibleTargets[0] : e.target;
+            const { target } = e;
             initializeFrame(e, target);
           }}
-          onDrag={(e) => updateFrame(e)}
+          onDrag={(e) => {
+            updateFrame(e);
+          }}
+          onDragEnd={(e) => {
+            const { target } = e;
+            const frame = frameMap.get(target);
+
+            const annotation = SelectionModificationService.getAnnotatonObjectById(target.id)[0];
+
+            const [
+              xStart, yStart, xEnd, yEnd,
+            ] = annotation.annotationInfo.points;
+
+            frame.translate = e.lastEvent.beforeDist;
+
+            const updatedStart = {
+              x: xStart + ((frame.translate[0] / slideWidth) * 100),
+              y: yStart + ((frame.translate[1] / slideHeight) * 100),
+            };
+
+            const updatedEnd = {
+              x: xEnd + ((frame.translate[0] / slideWidth) * 100),
+              y: yEnd + ((frame.translate[1] / slideHeight) * 100),
+            };
+
+            annotation.annotationInfo.points = [
+              updatedStart.x, updatedStart.y, updatedEnd.x, updatedEnd.y,
+            ];
+
+            ToolbarService.moveAnnotations(whiteboardId, [annotation]);
+          }}
           onDragGroupStart={(e) => e.events.forEach((dragEvent) => initializeFrame(dragEvent))}
           onDragGroup={(e) => e.events.forEach((dragEvent) => updateFrame(dragEvent))}
           edge={false}
@@ -179,7 +209,7 @@ function SelectionModification(props) {
         selectableTargets={['.selectable']}
         onSelect={
           (e) => {
-            SelectionService.selectAnnotations(e.selected
+            SelectionModificationService.selectAnnotations(e.selected
               .filter((target) => annotationIdsOfUser.includes(target.id)));
           }
         }
@@ -191,7 +221,7 @@ function SelectionModification(props) {
           }
         }}
         onSelectEnd={(e) => {
-          SelectionService.selectAnnotations(e.selected
+          SelectionModificationService.selectAnnotations(e.selected
             .filter((target) => annotationIdsOfUser.includes(target.id)));
         }}
       />
@@ -212,6 +242,8 @@ SelectionModification.propTypes = {
   isMultiUserActive: PropTypes.bool.isRequired,
   // all annotations on current whiteboard that belong to the user
   annotationIdsOfUser: PropTypes.arrayOf(PropTypes.string).isRequired,
+  slideWidth: PropTypes.number.isRequired,
+  slideHeight: PropTypes.number.isRequired,
 };
 
 export default SelectionModification;

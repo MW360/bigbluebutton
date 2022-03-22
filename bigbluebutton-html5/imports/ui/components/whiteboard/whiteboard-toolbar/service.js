@@ -42,6 +42,10 @@ const deleteAnnotations = (whiteboardId) => {
   }
 };
 
+const moveAnnotations = (whiteboardId, annotations) => {
+  makeCall('moveWhiteboardAnnotations', annotations, whiteboardId);
+};
+
 const changeWhiteboardMode = (multiUser, whiteboardId) => {
   makeCall('changeWhiteboardAccess', multiUser, whiteboardId);
 };
@@ -117,6 +121,7 @@ const filterAnnotationList = (amIPresenter) => {
 
 export default {
   deleteAnnotations,
+  moveAnnotations,
   undoAnnotation,
   clearWhiteboard,
   changeWhiteboardMode,
