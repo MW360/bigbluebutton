@@ -44,7 +44,7 @@ function SelectionModification(props) {
     let y = null;
 
     if (!eventTypes || eventTypes.includes(event.type)) {
-      const isTouchEvent = Object.prototype.hasOwnProperty.call(event, 'touches');
+      const isTouchEvent = event.touches;
       if (isTouchEvent) {
         x = event.touches[0].pageX;
         y = event.touches[0].pageY;
@@ -162,7 +162,9 @@ function SelectionModification(props) {
             updateFrame(e);
           }}
           onDragEnd={(e) => {
-            const { target } = e;
+            const { target, lastEvent } = e;
+            if (!lastEvent) return;
+
             const frame = frameMap.get(target);
 
             const annotation = SelectionModificationService.getAnnotatonObjectById(target.id)[0];
@@ -171,7 +173,7 @@ function SelectionModification(props) {
               xStart, yStart, xEnd, yEnd,
             ] = annotation.annotationInfo.points;
 
-            frame.translate = e.lastEvent.beforeDist;
+            frame.translate = lastEvent.beforeDist;
 
             const updatedStart = {
               x: xStart + ((frame.translate[0] / slideWidth) * 100),
@@ -210,7 +212,9 @@ function SelectionModification(props) {
         onSelect={
           (e) => {
             SelectionModificationService.selectAnnotations(e.selected
-              .filter((target) => annotationIdsOfUser.includes(target.id)));
+              .filter(
+                (target) => (isMultiUserActive ? annotationIdsOfUser.includes(target.id) : true),
+              ));
           }
         }
         onDragStart={(e) => {
@@ -222,7 +226,9 @@ function SelectionModification(props) {
         }}
         onSelectEnd={(e) => {
           SelectionModificationService.selectAnnotations(e.selected
-            .filter((target) => annotationIdsOfUser.includes(target.id)));
+            .filter(
+              (target) => (isMultiUserActive ? annotationIdsOfUser.includes(target.id) : true),
+            ));
         }}
       />
     </>
