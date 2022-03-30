@@ -138,6 +138,37 @@ function SelectionModification(props) {
     target.style.transform = `translate(${frame.translate[0]}px, ${frame.translate[1]}px)`;
   }
 
+  function finalizeAnnotationMoveOnServer(e) {
+    const { target, lastEvent } = e;
+    if (!lastEvent) return;
+
+    const frame = frameMap.get(target);
+
+    const annotation = SelectionModificationService.getAnnotatonObjectById(target.id)[0];
+
+    const [
+      xStart, yStart, xEnd, yEnd,
+    ] = annotation.annotationInfo.points;
+
+    frame.translate = lastEvent.beforeDist;
+
+    const updatedStart = {
+      x: xStart + ((frame.translate[0] / slideWidth) * 100),
+      y: yStart + ((frame.translate[1] / slideHeight) * 100),
+    };
+
+    const updatedEnd = {
+      x: xEnd + ((frame.translate[0] / slideWidth) * 100),
+      y: yEnd + ((frame.translate[1] / slideHeight) * 100),
+    };
+
+    annotation.annotationInfo.points = [
+      updatedStart.x, updatedStart.y, updatedEnd.x, updatedEnd.y,
+    ];
+
+    ToolbarService.moveAnnotations(whiteboardId, [annotation]);
+  }
+
   return (
     <>
       {userIsPresenter || isMultiUserActive ? (
@@ -161,38 +192,12 @@ function SelectionModification(props) {
           onDrag={(e) => {
             updateFrame(e);
           }}
-          onDragEnd={(e) => {
-            const { target, lastEvent } = e;
-            if (!lastEvent) return;
-
-            const frame = frameMap.get(target);
-
-            const annotation = SelectionModificationService.getAnnotatonObjectById(target.id)[0];
-
-            const [
-              xStart, yStart, xEnd, yEnd,
-            ] = annotation.annotationInfo.points;
-
-            frame.translate = lastEvent.beforeDist;
-
-            const updatedStart = {
-              x: xStart + ((frame.translate[0] / slideWidth) * 100),
-              y: yStart + ((frame.translate[1] / slideHeight) * 100),
-            };
-
-            const updatedEnd = {
-              x: xEnd + ((frame.translate[0] / slideWidth) * 100),
-              y: yEnd + ((frame.translate[1] / slideHeight) * 100),
-            };
-
-            annotation.annotationInfo.points = [
-              updatedStart.x, updatedStart.y, updatedEnd.x, updatedEnd.y,
-            ];
-
-            ToolbarService.moveAnnotations(whiteboardId, [annotation]);
-          }}
+          onDragEnd={finalizeAnnotationMoveOnServer}
           onDragGroupStart={(e) => e.events.forEach((dragEvent) => initializeFrame(dragEvent))}
           onDragGroup={(e) => e.events.forEach((dragEvent) => updateFrame(dragEvent))}
+          onDragGroupEnd={(e) => {
+            e.events.forEach(finalizeAnnotationMoveOnServer);
+          }}
           edge={false}
           ref={moveableRef}
           target={selection}
